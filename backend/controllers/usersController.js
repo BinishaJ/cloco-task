@@ -1,19 +1,49 @@
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const pool = require("../utils/database");
 
-// Enum for gender m, f, o
-const createGenderEnum = `
-    DO $$ 
-    BEGIN
-        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'gender') THEN
-            CREATE TYPE gender AS ENUM ('m', 'f', 'o');
-        END IF;
-    END $$;
-  `;
+// list users with pagination
+const getUsers = async (req, res) => {
+  const client = await pool.connect();
 
-// Register Controller
-const userRegistration = async (req, res) => {
+  const page = req.query.page ? parseInt(req.query.page) : 1;
+  const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+  const offset = (page - 1) * limit;
+
+  try {
+    // check if users table exists
+    tableExists = await client.query(
+      `
+        SELECT EXISTS (
+          SELECT 1
+          FROM information_schema.tables
+          WHERE table_name = 'users'
+        )
+        `
+    );
+    if (!tableExists.rows[0].exists)
+      return res.status(200).send({ data: { users: [] } });
+
+    // send users list
+    users = await client.query(
+      `
+      SELECT id, first_name, last_name, email, phone, dob, gender, address
+      FROM users
+      LIMIT $1 OFFSET $2
+    `,
+      [limit, offset]
+    );
+    return res.status(200).send({ data: { users: users.rows } });
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({ error: "An error occurred fetching users" });
+  } finally {
+    // release the connection pool
+    client.release();
+  }
+};
+
+const createUser = async (req, res) => {
   const client = await pool.connect();
   try {
     const {
@@ -28,8 +58,6 @@ const userRegistration = async (req, res) => {
     } = req.body;
 
     await client.query("BEGIN");
-    // Create gender enum if not exists
-    await client.query(createGenderEnum);
 
     // create users table
     await client.query(`
@@ -73,52 +101,88 @@ const userRegistration = async (req, res) => {
         .status(409)
         .json({ error: "User with the email already exists!" });
 
-    res.status(500).json({ error: "An error occurred during registration" });
+    res.status(500).json({ error: "An error occurred while creating user" });
   } finally {
     // release the connection pool
     client.release();
   }
 };
 
-// Login Controller
-const userLogin = async (req, res) => {
+const updateUser = async (req, res) => {
   const client = await pool.connect();
   try {
-    const { email, password } = req.body;
-    //check for email
-    const user = await client.query(
+    const { id } = req.params;
+    const { first_name, last_name, phone, dob, gender, address } = req.body;
+
+    await client.query("BEGIN");
+
+    // Update the users record in the database
+    const result = await client.query(
       `
-        SELECT password FROM users 
-        WHERE email = ($1) 
+      UPDATE users
+      SET first_name = COALESCE($1, first_name),
+          last_name = COALESCE($2, last_name),
+          phone = COALESCE($3, phone),
+          dob = COALESCE($4, dob),
+          gender = COALESCE($5, gender),
+          address = COALESCE($6, address),
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = $7
+      RETURNING *
       `,
-      [email]
+      [first_name, last_name, phone, dob, gender, address, id]
     );
 
-    // if user exists
-    if (user.rowCount === 0)
-      return res.status(401).send({ error: "User doesn't exist!" });
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    await client.query("COMMIT");
 
-    const pwd = user.rows[0].password;
-
-    // compare hashed password
-    const validPwd = await bcrypt.compare(password, pwd);
-    if (!validPwd) return res.status(401).send({ error: "Incorrect password" });
-
-    // return jwt token
-    const token = jwt.sign({ email: email }, process.env.SECRET_KEY, {
-      expiresIn: "1d",
-    });
-    res.json({ data: { token } });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "An error occurred during login" });
+    // Return the updated users record
+    return res.status(200).json({ data: { user: result.rows[0] } });
+  } catch (err) {
+    console.log(err);
+    await client.query("ROLLBACK");
+    res.status(500).json({ error: "An error occurred while updating user" });
   } finally {
-    // release connection pool
+    // release the connection pool
     client.release();
   }
 };
 
-module.exports = {
-  userLogin,
-  userRegistration,
+const deleteUser = async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { id } = req.params;
+
+    await client.query("BEGIN");
+
+    // delete user
+    const user = await client.query(
+      `
+      DELETE FROM users
+        WHERE id = $1
+      `,
+      [id]
+    );
+    if (user.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ error: `User with ID ${id} doesn't exist` });
+    }
+    await client.query("COMMIT");
+
+    // Return response
+    return res
+      .status(200)
+      .json({ data: `User with ID ${id} deleted successfully` });
+  } catch (err) {
+    console.log(err);
+    await client.query("ROLLBACK");
+    res.status(500).json({ error: "An error occurred while updating user" });
+  } finally {
+    // release the connection pool
+    client.release();
+  }
 };
+module.exports = { getUsers, createUser, updateUser, deleteUser };

@@ -59,7 +59,25 @@ const loginSchema = (data) => {
   return schema.validate(data);
 };
 
+// Schema for updating user
+const updateSchema = (data) => {
+  const schema = Joi.object({
+    first_name: Joi.string().max(255),
+    last_name: Joi.string().max(255),
+    phone: Joi.string().max(20),
+    dob: Joi.date().iso().messages({
+      "date.base": "Date of Birth must be a valid date!",
+    }),
+    gender: Joi.string().valid("m", "f", "o").messages({
+      "any.only": "Gender must be 'm', 'f', or 'o'!",
+    }),
+    address: Joi.string().max(255),
+  });
+  return schema.validate(data);
+};
+
 module.exports = {
   registerSchema,
   loginSchema,
+  updateSchema,
 };
