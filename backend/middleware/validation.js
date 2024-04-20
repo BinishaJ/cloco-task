@@ -1,8 +1,6 @@
-const { registerSchema } = require("../utils/validation");
-
-const registerValidation = (req, res, next) => {
+const validation = (schema) => (req, res, next) => {
   // Validate the request body using the Joi schema
-  const { error } = registerSchema(req.body);
+  const { error } = schema(req.body);
 
   // If validation fails, return an error response
   if (error) {
@@ -12,4 +10,4 @@ const registerValidation = (req, res, next) => {
   next();
 };
 
-module.exports = registerValidation;
+module.exports = validation;

@@ -60,7 +60,7 @@ const loginSchema = (data) => {
 };
 
 // Schema for updating user
-const updateSchema = (data) => {
+const userUpdateSchema = (data) => {
   const schema = Joi.object({
     first_name: Joi.string().max(255),
     last_name: Joi.string().max(255),
@@ -76,8 +76,79 @@ const updateSchema = (data) => {
   return schema.validate(data);
 };
 
+// Schema for artist
+const artistSchema = (data) => {
+  const schema = Joi.object({
+    name: Joi.string().required().max(255).messages({
+      "any.empty": "Name is required!",
+      "any.required": "Name is required!",
+    }),
+    dob: Joi.date().iso().required().messages({
+      "date.base": "Date of Birth must be a valid date!",
+      "any.empty": "Date of Birth is required!",
+      "any.required": "Date of Birth is required!",
+    }),
+    gender: Joi.string().valid("m", "f", "o").required().messages({
+      "any.only": "Gender must be 'm', 'f', or 'o'!",
+      "any.empty": "Gender is required!",
+      "any.required": "Gender is required!",
+    }),
+    address: Joi.string().required().max(255).messages({
+      "any.empty": "Address is required!",
+      "any.required": "Address is required!",
+    }),
+    first_release_year: Joi.number()
+      .integer()
+      .min(1000)
+      .max(new Date().getFullYear())
+      .required()
+      .messages({
+        "number.integer": "Release year must be a valid year",
+        "number.min": "Release year must be a valid year",
+        "number.max":
+          "Release year must be less than or equal to the current year",
+        "number.base": "Release year must be a valid year",
+        "any.empty": "Release year is required!",
+        "any.required": "Release year is required!",
+      }),
+    no_of_albums_released: Joi.number().integer().required().messages({
+      "any.empty": "Number of albums released is required!",
+      "any.required": "Number of albums released  is required!",
+    }),
+  });
+  return schema.validate(data);
+};
+
+// Schema for artist update
+const updateArtistSchema = (data) => {
+  const schema = Joi.object({
+    dob: Joi.date().iso().messages({
+      "date.base": "Date of Birth must be a valid date!",
+    }),
+    gender: Joi.string().valid("m", "f", "o").messages({
+      "any.only": "Gender must be 'm', 'f', or 'o'!",
+    }),
+    address: Joi.string().max(255),
+    first_release_year: Joi.number()
+      .integer()
+      .min(1000)
+      .max(new Date().getFullYear())
+      .messages({
+        "number.integer": "Release year must be a valid year",
+        "number.min": "Release year must be a valid year",
+        "number.max":
+          "Release year must be less than or equal to the current year",
+        "number.base": "Release year must be a valid year",
+      }),
+    no_of_albums_released: Joi.number().integer(),
+  });
+  return schema.validate(data);
+};
+
 module.exports = {
   registerSchema,
   loginSchema,
-  updateSchema,
+  userUpdateSchema,
+  artistSchema,
+  updateArtistSchema,
 };
