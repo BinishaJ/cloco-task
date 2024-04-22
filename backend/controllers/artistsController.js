@@ -1,4 +1,3 @@
-const bcrypt = require("bcrypt");
 const pool = require("../utils/database");
 
 // list artists with pagination
@@ -28,11 +27,25 @@ const getArtists = async (req, res) => {
       `
       SELECT id, name, dob, gender, address, first_release_year, no_of_albums_released
       FROM artists
+      ORDER BY id
       LIMIT $1 OFFSET $2
     `,
       [limit, offset]
     );
-    return res.status(200).send({ data: { artists: artists.rows } });
+
+    count = await client.query(
+      `
+      SELECT COUNT(id)
+      FROM artists
+      `
+    );
+
+    return res.status(200).send({
+      data: {
+        artists: artists.rows,
+        total_artists: parseInt(count.rows[0].count),
+      },
+    });
   } catch (err) {
     console.log(err);
 

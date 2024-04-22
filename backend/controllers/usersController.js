@@ -28,11 +28,22 @@ const getUsers = async (req, res) => {
       `
       SELECT id, first_name, last_name, email, phone, dob, gender, address
       FROM users
+      ORDER BY id
       LIMIT $1 OFFSET $2
     `,
       [limit, offset]
     );
-    return res.status(200).send({ data: { users: users.rows } });
+
+    count = await client.query(
+      `
+      SELECT COUNT(id)
+      FROM users
+      `
+    );
+
+    return res.status(200).send({
+      data: { users: users.rows, total_users: parseInt(count.rows[0].count) },
+    });
   } catch (err) {
     console.log(err);
 
