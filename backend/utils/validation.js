@@ -145,10 +145,41 @@ const updateArtistSchema = (data) => {
   return schema.validate(data);
 };
 
+// Schema for song
+const songSchema = (data) => {
+  const schema = Joi.object({
+    artist_id: Joi.number().integer().required().messages({
+      "any.empty": "Artist ID is required!",
+      "any.required": "Artist ID is required!",
+      "number.base": "Artist ID must be a number",
+      "number.integer": "Artist ID must be a number",
+    }),
+    title: Joi.string().required().max(255).messages({
+      "any.empty": "Title is required!",
+      "any.required": "Title is required!",
+    }),
+    album_name: Joi.string().required().max(255).messages({
+      "any.empty": "Album Name is required!",
+      "any.required": "Album Name is required!",
+    }),
+    genre: Joi.string()
+      .valid("rnb", "country", "classic", "rock", "jazz")
+      .required()
+      .messages({
+        "any.only":
+          "Genre must be 'rnb', 'country', 'classic', 'rock', 'jazz'!",
+        "any.empty": "Genre is required!",
+        "any.required": "Genre is required!",
+      }),
+  });
+  return schema.validate(data);
+};
+
 module.exports = {
   registerSchema,
   loginSchema,
   userUpdateSchema,
   artistSchema,
   updateArtistSchema,
+  songSchema,
 };
