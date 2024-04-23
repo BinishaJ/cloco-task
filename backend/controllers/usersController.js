@@ -11,7 +11,7 @@ const getUsers = async (req, res) => {
 
   try {
     // check if users table exists
-    tableExists = await client.query(
+    const tableExists = await client.query(
       `
         SELECT EXISTS (
           SELECT 1
@@ -24,7 +24,7 @@ const getUsers = async (req, res) => {
       return res.status(200).send({ data: { users: [] } });
 
     // send users list
-    users = await client.query(
+    const users = await client.query(
       `
       SELECT id, first_name, last_name, email, phone, dob, gender, address
       FROM users
@@ -34,7 +34,7 @@ const getUsers = async (req, res) => {
       [limit, offset]
     );
 
-    count = await client.query(
+    const count = await client.query(
       `
       SELECT COUNT(id)
       FROM users

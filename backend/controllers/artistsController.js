@@ -10,7 +10,7 @@ const getArtists = async (req, res) => {
 
   try {
     // check if artists table exists
-    tableExists = await client.query(
+    const tableExists = await client.query(
       `
         SELECT EXISTS (
           SELECT 1
@@ -23,7 +23,7 @@ const getArtists = async (req, res) => {
       return res.status(200).send({ data: { artists: [] } });
 
     // send artists list
-    artists = await client.query(
+    const artists = await client.query(
       `
       SELECT id, name, dob, gender, address, first_release_year, no_of_albums_released
       FROM artists
@@ -33,7 +33,7 @@ const getArtists = async (req, res) => {
       [limit, offset]
     );
 
-    count = await client.query(
+    const count = await client.query(
       `
       SELECT COUNT(id)
       FROM artists
@@ -184,4 +184,71 @@ const deleteArtist = async (req, res) => {
     client.release();
   }
 };
-module.exports = { getArtists, createArtist, updateArtist, deleteArtist };
+
+const getSongs = async (req, res) => {
+  const client = await pool.connect();
+  const { id } = req.params;
+
+  try {
+    // check if artist with id exists
+    const artistExists = await client.query(
+      `
+        SELECT name 
+        FROM artists
+       WHERE id = $1
+      `,
+      [id]
+    );
+    if (artistExists.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ error: `Artist with ID ${id} doesn't exist` });
+    }
+
+    // check if songs table exists
+    const tableExists = await client.query(
+      `
+        SELECT EXISTS (
+          SELECT 1
+          FROM information_schema.tables
+          WHERE table_name = 'songs'
+        )
+        `
+    );
+    if (!tableExists.rows[0].exists)
+      return res.status(200).send({ data: { songs: [] } });
+
+    // send songs list
+    const songs = await client.query(
+      `
+      SELECT id, title, album_name, genre
+      FROM songs
+      WHERE artist_id = $1
+      ORDER BY id
+    `,
+      [id]
+    );
+
+    return res.status(200).send({
+      data: {
+        songs: songs.rows,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+
+    res
+      .status(500)
+      .json({ error: "An error occurred fetching songs for artist" });
+  } finally {
+    // release the connection pool
+    client.release();
+  }
+};
+module.exports = {
+  getArtists,
+  createArtist,
+  updateArtist,
+  deleteArtist,
+  getSongs,
+};

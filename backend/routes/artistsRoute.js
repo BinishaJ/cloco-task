@@ -10,5 +10,6 @@ router
   .post(validation(artistSchema), artistsController.createArtist);
 router.route("/:id").patch(artistsController.updateArtist);
 router.route("/:id").delete(artistsController.deleteArtist);
+router.route("/:id/songs").get(artistsController.getSongs);
 
 module.exports = router;

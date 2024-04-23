@@ -20,7 +20,7 @@ const getSongs = async (req, res) => {
 
   try {
     // check if songs table exists
-    tableExists = await client.query(
+    const tableExists = await client.query(
       `
         SELECT EXISTS (
           SELECT 1
@@ -33,7 +33,7 @@ const getSongs = async (req, res) => {
       return res.status(200).send({ data: { songs: [] } });
 
     // send songs list
-    songs = await client.query(
+    const songs = await client.query(
       `
       SELECT id, title, album_name, genre, artist_id
       FROM songs
@@ -43,7 +43,7 @@ const getSongs = async (req, res) => {
       [limit, offset]
     );
 
-    count = await client.query(
+    const count = await client.query(
       `
       SELECT COUNT(id)
       FROM songs
