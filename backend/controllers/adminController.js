@@ -96,13 +96,14 @@ const userLogin = async (req, res) => {
 
     // if admin exists
     if (user.rowCount === 0)
-      return res.status(401).send({ error: "Admin doesn't exist!" });
+      return res.status(401).send({ error: "Invalid email!" });
 
     const pwd = user.rows[0].password;
 
     // compare hashed password
     const validPwd = await bcrypt.compare(password, pwd);
-    if (!validPwd) return res.status(401).send({ error: "Incorrect password" });
+    if (!validPwd)
+      return res.status(401).send({ error: "Incorrect password!" });
 
     // return jwt token
     const token = jwt.sign({ email: email }, process.env.SECRET_KEY, {
