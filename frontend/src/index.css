@@ -1,7 +1,11 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
 html,
 body {
-  height: 100%;
-  min-width: 400px;
+  min-height: 100%;
   overflow: auto;
 }
 
@@ -20,6 +24,7 @@ code {
 }
 
 #root {
+  min-width: 350px;
   min-height: 100%;
 }
 

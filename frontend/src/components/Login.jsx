@@ -47,8 +47,8 @@ const Login = () => {
   });
 
   return (
-    <div className="p-8 md:p-0 bg-[#beebd6] flex flex-col justify-center items-center md:bg-slate-200 h-screen">
-      <p className="md:invisible text-3xl font-bold my-8 text-teal-800 text-center">
+    <div className="p-8 md:p-0 bg-[#beebd6] flex flex-col justify-center items-center md:bg-slate-200 min-h-screen">
+      <p className="md:hidden text-3xl font-bold my-8 text-teal-800 text-center">
         Artist Management System
       </p>
       <div className="md:grid md:grid-cols-2 md:w-[80%] lg:w-[50%]">
@@ -64,6 +64,7 @@ const Login = () => {
             <label className="mb-2 text-md">Email</label>
             <input
               type="email"
+              name="email"
               value={email}
               required
               onChange={(e) => setEmail(e.target.value)}
@@ -75,6 +76,7 @@ const Login = () => {
             <div className="relative mb-2">
               <input
                 type={showPassword ? "text" : "password"}
+                name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -102,7 +104,7 @@ const Login = () => {
               Log In
             </button>
 
-            <p className="md:invisible mt-3 text-center">
+            <p className="md:hidden mt-3 text-center">
               Don't have an account?
               <br />
               <a
@@ -114,7 +116,7 @@ const Login = () => {
             </p>
           </form>
         </div>
-        <div className="invisible md:visible bg-teal-600 px-6 py-8 flex flex-col items-center justify-center text-slate-50">
+        <div className="hidden md:flex bg-teal-600 px-6 py-8 flex-col items-center justify-center text-slate-50">
           <p className="text-3xl font-bold text-center">
             Artist Management System
           </p>
