@@ -22,5 +22,5 @@ app.get("/", (req, res) => {
 });
 
 app.all("*", (req, res) => {
-  res.status(404).send("Error 404! Endpoint not found!");
+  res.status(404).send({ error: "Error 404! Endpoint not found!" });
 });

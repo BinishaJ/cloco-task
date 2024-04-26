@@ -119,6 +119,38 @@ const createUser = async (req, res) => {
   }
 };
 
+// get user details
+const getUser = async (req, res) => {
+  const { id } = req.params;
+  const client = await pool.connect();
+
+  try {
+    // send user details
+    const user = await client.query(
+      `
+      SELECT first_name, last_name, phone, dob, gender, address
+      FROM users
+      WHERE id = $1
+    `,
+      [id]
+    );
+
+    if (user.rowCount === 0)
+      return res.status(404).json({ error: "User not found" });
+
+    return res.status(200).send({
+      data: { user: user.rows[0] },
+    });
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({ error: "An error occurred fetching user details" });
+  } finally {
+    // release the connection pool
+    client.release();
+  }
+};
+
 const updateUser = async (req, res) => {
   const client = await pool.connect();
   try {
@@ -190,10 +222,10 @@ const deleteUser = async (req, res) => {
   } catch (err) {
     console.log(err);
     await client.query("ROLLBACK");
-    res.status(500).json({ error: "An error occurred while updating user" });
+    res.status(500).json({ error: "An error occurred while deleting user" });
   } finally {
     // release the connection pool
     client.release();
   }
 };
-module.exports = { getUsers, createUser, updateUser, deleteUser };
+module.exports = { getUsers, createUser, getUser, updateUser, deleteUser };

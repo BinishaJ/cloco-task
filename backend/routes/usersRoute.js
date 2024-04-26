@@ -10,5 +10,6 @@ router
   .route("/:id")
   .patch(validation(userUpdateSchema), usersController.updateUser);
 router.route("/:id").delete(usersController.deleteUser);
+router.route("/:id").get(usersController.getUser);
 
 module.exports = router;
