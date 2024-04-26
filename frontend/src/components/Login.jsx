@@ -22,17 +22,18 @@ const Login = () => {
     if (email && password) {
       setLoading(true);
       await axiosInstance
-        .post("/api/admin/login", {
+        .post("/admin/login", {
           email,
           password,
         })
         .then((response) => {
           console.log(response);
           localStorage.setItem("token", response.data.data.token);
+          setError("");
           setLoading(false);
           setEmail("");
           setPassword("");
-          navigate("/home");
+          navigate("/home/users");
         })
         .catch((e) => {
           console.log(e);
@@ -43,7 +44,7 @@ const Login = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) navigate("/home");
+    if (token) navigate("/home/users");
   });
 
   return (

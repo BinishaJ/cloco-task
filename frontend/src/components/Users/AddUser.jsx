@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { MdAdd } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const Register = () => {
+import axiosInstance from "../../axios";
+
+const AddUser = () => {
   const [userDetails, setUserDetails] = useState({
     first_name: "",
     last_name: "",
@@ -15,6 +19,7 @@ const Register = () => {
     address: "",
   });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -28,17 +33,17 @@ const Register = () => {
     setUserDetails({ ...userDetails, [e.target.name]: e.target.value });
   };
 
-  const onRegister = async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     console.log(userDetails);
 
-    // DOB
+    //  DOB
     if (new Date(userDetails.dob) > new Date()) {
       setError("Invalid Date of Birth");
       return;
     }
 
-    // password
+    //  password
     if (userDetails.password.length < 8) {
       setError("Password must be at least 8 characters!");
       return;
@@ -46,9 +51,10 @@ const Register = () => {
 
     setLoading(true);
     await axiosInstance
-      .post("/admin/register", userDetails)
+      .post("/users", userDetails)
       .then((response) => {
         console.log(response);
+        setSuccess(true);
         setError("");
         setLoading(false);
         setUserDetails({
@@ -61,7 +67,9 @@ const Register = () => {
           gender: "",
           address: "",
         });
-        navigate("/");
+        setTimeout(() => {
+          navigate("/home/users");
+        }, 3000);
       })
       .catch((e) => {
         console.log(e);
@@ -69,16 +77,24 @@ const Register = () => {
       });
   };
 
+  useEffect(() => {
+    if (success) {
+      toast.success("User created successfully", { autoClose: 2000 });
+      setSuccess(false);
+    }
+  }, [success]);
+
   return (
-    <div className="p-8 bg-[#b9e7c5] flex flex-col justify-center items-center min-h-full">
-      <div className="w-[90%] md:w-[60%] lg:w-[50%] xl:w-[40%]">
+    <div className="p-8 bg-[#e4e5e5] flex flex-col justify-center items-center min-h-full">
+      <ToastContainer />
+      <div className="w-[90%] md:w-[60%] lg:w-[50%] xl:w-[40%] shadow-[0px_2px_10px_0_rgba(0,0,0,0.2)]">
         <div className="bg-slate-100 p-12">
           <span className="flex justify-center items-center mb-5">
-            <p className="text-2xl font-semibold ">Register</p>
+            <p className="text-[1.7rem] font-semibold ">Add User</p>
           </span>
           <form
             className="flex flex-col h-fit justify-center rounded-md "
-            onSubmit={onRegister}
+            onSubmit={onSubmit}
           >
             <label className="mb-2 text-md">First Name</label>
             <input
@@ -183,17 +199,29 @@ const Register = () => {
               {error}
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-teal-600 text-white px-1 py-3 rounded-3xl mt-2 text-base hover:bg-teal-700 transition-colors duration-500"
-            >
-              Register
-            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:flex justify-end gap-2">
+              <button
+                type="cancel"
+                disabled={loading}
+                onClick={() => navigate("/home/users")}
+                className="flex items-center justify-center bg-pink-600 text-white px-1 py-3 rounded-3xl mt-2 text-base hover:bg-pink-700 transition-colors duration-500 w-full md:w-24 mr-3"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex items-center justify-center bg-teal-600 text-white px-1 py-3 rounded-3xl mt-2 text-base hover:bg-teal-700 transition-colors duration-500 w-full md:w-24"
+              >
+                <MdAdd className="mr-[0.1rem] text-xl font-semibold" />
+                Add
+              </button>
+            </div>
           </form>
         </div>
       </div>
     </div>
   );
 };
-export default Register;
+
+export default AddUser;

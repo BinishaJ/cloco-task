@@ -31,3 +31,21 @@ code {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  td,
+  th {
+    @apply px-2;
+    @apply py-3;
+    @apply border-2;
+    @apply border-gray-300;
+    @apply text-center;
+  }
+  tr:nth-child(even) {
+    @apply bg-[#eaeaea];
+  }
+  thead {
+    @apply bg-[#67a577];
+    @apply text-white;
+  }
+}
