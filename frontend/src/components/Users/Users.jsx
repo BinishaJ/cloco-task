@@ -98,7 +98,13 @@ const Users = () => {
                   <td>{user.email}</td>
                   <td>{user.phone}</td>
                   <td>{new Date(user.dob).toLocaleDateString()}</td>
-                  <td>{user.gender}</td>
+                  <td>
+                    {user.gender === "f"
+                      ? "Female"
+                      : user.gender === "m"
+                      ? "Male"
+                      : "Others"}
+                  </td>
                   <td>{user.address}</td>
                   <td>
                     <span className="flex justify-center">
@@ -119,7 +125,7 @@ const Users = () => {
 
         <div className="min-[500px]:flex mt-5">
           <p className="flex-grow max-[500px]:mb-3 max-[500px]:text-center">
-            Showing {error ? 0 : (page - 1) * 10 + 1}-
+            Showing {totalUsers ? (page - 1) * 10 + 1 : 0}-
             {page * 10 > totalUsers ? totalUsers : page * 10} of {totalUsers}{" "}
             entries
           </p>

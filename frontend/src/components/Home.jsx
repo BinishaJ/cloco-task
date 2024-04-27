@@ -1,7 +1,9 @@
 import React, { useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 
-import Artists from "./Artists";
+import AddArtist from "./Artists/AddArtist";
+import Artists from "./Artists/Artists";
+import UpdateArtist from "./Artists/UpdateArtist";
 import Header from "./Header";
 import AddUser from "./Users/AddUser";
 import UpdateUser from "./Users/UpdateUser";
@@ -24,7 +26,11 @@ const Home = () => {
           <Route path=":id" element={<UpdateUser />} />
           <Route path="add" element={<AddUser />} />
         </Route>
-        <Route path="/artists" element={<Artists />} />
+        <Route path="/artists">
+          <Route path="" element={<Artists />} />
+          <Route path="add" element={<AddArtist />} />
+          <Route path=":id" element={<UpdateArtist />} />
+        </Route>
       </Routes>
     </>
   );
