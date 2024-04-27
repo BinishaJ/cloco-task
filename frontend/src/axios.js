@@ -23,10 +23,10 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     console.log(error);
-    if (error.response.status === 403) {
+    if (error.response && error.response.status === 403) {
       window.location.href = "/logout";
     }
-    return error.response;
+    return Promise.reject(error);
   }
 );
 

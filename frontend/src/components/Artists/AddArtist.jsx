@@ -18,6 +18,7 @@ const AddArtist = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -51,30 +52,30 @@ const AddArtist = () => {
     }
 
     setLoading(true);
-    await axiosInstance
-      .post("/artists", artistDetails)
-      .then((response) => {
-        console.log(response);
-        setSuccess(true);
-        setError("");
-        setLoading(false);
-        setArtistDetails({
-          name: "",
-          dob: "",
-          gender: "",
-          address: "",
-          first_release_year: "",
-          no_of_albums_released: "",
-        });
-        setTimeout(() => {
-          navigate("/home/artists");
-        }, 3000);
-      })
-      .catch((e) => {
-        console.log(e);
-        setError(e.response.data.error);
-        setLoading(false);
+    try {
+      const response = await axiosInstance.post("/artists", artistDetails);
+      console.log(response.data);
+      setSuccess(true);
+      setError("");
+      setArtistDetails({
+        name: "",
+        dob: "",
+        gender: "",
+        address: "",
+        first_release_year: "",
+        no_of_albums_released: "",
       });
+      setTimeout(() => {
+        navigate("/home/artists");
+      }, 3000);
+    } catch (err) {
+      console.error("Error creating artist: ", err);
+      if (!err.response) setToastMessage(err.message);
+      else if (err.response.status < 500) setError(err.response.data.error);
+      else setToastMessage(err.response.data.error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -83,6 +84,13 @@ const AddArtist = () => {
       setSuccess(false);
     }
   }, [success]);
+
+  useEffect(() => {
+    if (toastMessage) {
+      toast.error(toastMessage, { autoClose: 3000 });
+      setToastMessage(false);
+    }
+  }, [toastMessage]);
 
   return (
     <div className="p-8 bg-[#e4e5e5] flex flex-col justify-center items-center min-h-full">

@@ -11,11 +11,10 @@ const Users = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [toastMessage, setToastMessage] = useState("");
 
   useEffect(() => {
-    setError("");
     const fetchUsers = async () => {
       try {
         const response = await axiosInstance.get(`/users?page=${page}`);
@@ -26,8 +25,8 @@ const Users = () => {
         setTotalPages(Math.ceil(totalUsers / 10));
       } catch (err) {
         console.error("Error fetching users:", err);
-        if (err.response) setError(err.response.data.error);
-        else setError(err.message);
+        if (err.response) setToastMessage(err.response.data.error);
+        else setToastMessage(err.message);
       } finally {
         setLoading(false);
       }
@@ -36,11 +35,11 @@ const Users = () => {
   }, [page, totalUsers]);
 
   useEffect(() => {
-    if (error) {
-      toast.error(error, { autoClose: 4000 });
-      setError("");
+    if (toastMessage) {
+      toast.error(toastMessage, { autoClose: 3000 });
+      setToastMessage(false);
     }
-  }, [error]);
+  }, [toastMessage]);
 
   const onNext = () => {
     if (page < totalPages) setPage(page + 1);
@@ -54,15 +53,15 @@ const Users = () => {
     try {
       const response = await axiosInstance.delete(`/users/${id}`);
       if (response) {
-        setError("");
+        setToastMessage("");
         console.log(response.data.data);
         setUsers(users.filter((user) => user.id !== id));
         setTotalUsers(totalUsers - 1);
       }
     } catch (err) {
       console.error("Error deleting user:", err);
-      if (err.response) setError(err.response.data.error);
-      else setError(err.message);
+      if (err.response) setToastMessage(err.response.data.error);
+      else setToastMessage(err.message);
     }
   };
 

@@ -10,11 +10,10 @@ const Songs = () => {
   const { id } = useParams();
   const [songs, setSong] = useState([]);
   const [totalSongs, setTotalSongs] = useState(0);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [toastMessage, setToastMessage] = useState("");
 
   useEffect(() => {
-    setError("");
     const fetchSong = async () => {
       try {
         const response = await axiosInstance.get(`/artists/${id}/songs`);
@@ -24,8 +23,8 @@ const Songs = () => {
         setTotalSongs(data.total_songs);
       } catch (err) {
         console.error("Error fetching songs:", err);
-        if (err.response) setError(err.response.data.error);
-        else setError(err.message);
+        if (err.response) setToastMessage(err.response.data.error);
+        else setToastMessage(err.message);
       } finally {
         setLoading(false);
       }
@@ -34,25 +33,25 @@ const Songs = () => {
   }, [id]);
 
   useEffect(() => {
-    if (error) {
-      toast.error(error, { autoClose: 4000 });
-      setError("");
+    if (toastMessage) {
+      toast.error(toastMessage, { autoClose: 3000 });
+      setToastMessage(false);
     }
-  }, [error]);
+  }, [toastMessage]);
 
   const onDeleteSong = async (id) => {
     try {
       const response = await axiosInstance.delete(`/songs/${id}`);
       if (response) {
-        setError("");
+        setToastMessage("");
         console.log(response.data.data);
         setSong(songs.filter((song) => song.id !== id));
         setTotalSongs(totalSongs - 1);
       }
     } catch (err) {
       console.error("Error deleting song:", err);
-      if (err.response) setError(err.response.data.error);
-      else setError(err.message);
+      if (err.response) setToastMessage(err.response.data.error);
+      else setToastMessage(err.message);
     }
   };
 

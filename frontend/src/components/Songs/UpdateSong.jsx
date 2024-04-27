@@ -16,6 +16,7 @@ const UpdateSong = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -35,8 +36,8 @@ const UpdateSong = () => {
         console.error("Error fetching song details:", err);
         if (err.response) setError(err.response.data.error);
         else setError(err);
-        setLoading(false);
       });
+    setLoading(false);
   }, [id]);
 
   const onSubmit = async (e) => {
@@ -62,9 +63,11 @@ const UpdateSong = () => {
           navigate(-1);
         }, 3000);
       })
-      .catch((e) => {
-        console.log(e);
-        setError(e.response.data.error);
+      .catch((err) => {
+        console.log("Error updating song: ", err);
+        if (!err.response) setToastMessage(err.message);
+        else if (err.response.status < 500) setError(err.response.data.error);
+        else setToastMessage(err.response.data.error);
       });
     setLoading(false);
   };
@@ -75,6 +78,13 @@ const UpdateSong = () => {
       setSuccess(false);
     }
   }, [success]);
+
+  useEffect(() => {
+    if (toastMessage) {
+      toast.error(toastMessage, { autoClose: 3000 });
+      setToastMessage(false);
+    }
+  }, [toastMessage]);
 
   return (
     <div className="p-8 bg-[#e4e5e5] flex flex-col justify-center items-center min-h-full">

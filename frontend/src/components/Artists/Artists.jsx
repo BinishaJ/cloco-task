@@ -11,11 +11,10 @@ const Artist = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalArtists, setTotalArtists] = useState(0);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [toastMessage, setToastMessage] = useState("");
 
   useEffect(() => {
-    setError("");
     const fetchArtist = async () => {
       try {
         const response = await axiosInstance.get(`/artists?page=${page}`);
@@ -26,8 +25,8 @@ const Artist = () => {
         setTotalPages(Math.ceil(totalArtists / 10));
       } catch (err) {
         console.error("Error fetching artists:", err);
-        if (err.response) setError(err.response.data.error);
-        else setError(err.message);
+        if (err.response) setToastMessage(err.response.data.error);
+        else setToastMessage(err.message);
       } finally {
         setLoading(false);
       }
@@ -36,11 +35,11 @@ const Artist = () => {
   }, [page, totalArtists]);
 
   useEffect(() => {
-    if (error) {
-      toast.error(error, { autoClose: 4000 });
-      setError("");
+    if (toastMessage) {
+      toast.error(toastMessage, { autoClose: 3000 });
+      setToastMessage(false);
     }
-  }, [error]);
+  }, [toastMessage]);
 
   const onNext = () => {
     if (page < totalPages) setPage(page + 1);
@@ -54,15 +53,15 @@ const Artist = () => {
     try {
       const response = await axiosInstance.delete(`/artists/${id}`);
       if (response) {
-        setError("");
+        setToastMessage("");
         console.log(response.data.data);
         setArtist(artists.filter((artist) => artist.id !== id));
         setTotalArtists(totalArtists - 1);
       }
     } catch (err) {
       console.error("Error deleting artist:", err);
-      if (err.response) setError(err.response.data.error);
-      else setError(err.message);
+      if (err.response) setToastMessage(err.response.data.error);
+      else setToastMessage(err.message);
     }
   };
 

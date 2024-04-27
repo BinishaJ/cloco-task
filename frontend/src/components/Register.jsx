@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import axiosInstance from "../axios";
 
 const Register = () => {
@@ -17,6 +20,8 @@ const Register = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const navigate = useNavigate();
 
@@ -31,6 +36,7 @@ const Register = () => {
   const onRegister = async (e) => {
     e.preventDefault();
     console.log(userDetails);
+    setError("");
 
     // DOB
     if (new Date(userDetails.dob) > new Date()) {
@@ -49,8 +55,7 @@ const Register = () => {
       .post("/admin/register", userDetails)
       .then((response) => {
         console.log(response);
-        setError("");
-        setLoading(false);
+        setSuccess(true);
         setUserDetails({
           first_name: "",
           last_name: "",
@@ -61,16 +66,36 @@ const Register = () => {
           gender: "",
           address: "",
         });
-        navigate("/");
+        setTimeout(() => {
+          navigate("/");
+        }, 3000);
       })
-      .catch((e) => {
-        console.log(e);
-        setError(e.response.data.error);
+      .catch((err) => {
+        console.log("Error registering: ", err);
+        if (!err.response) setToastMessage(err.message);
+        else if (err.response.status < 500) setError(err.response.data.error);
+        else setToastMessage(err.response.data.error);
       });
+    setLoading(false);
   };
+
+  useEffect(() => {
+    if (toastMessage) {
+      toast.error(toastMessage, { autoClose: 3000 });
+      setToastMessage(false);
+    }
+  }, [toastMessage]);
+
+  useEffect(() => {
+    if (success) {
+      toast.success("Admin created successfully", { autoClose: 3000 });
+      setSuccess(false);
+    }
+  }, [success]);
 
   return (
     <div className="p-8 bg-[#b9e7c5] flex flex-col justify-center items-center min-h-full">
+      <ToastContainer />
       <div className="w-[90%] md:w-[60%] lg:w-[50%] xl:w-[40%]">
         <div className="bg-slate-100 p-12">
           <span className="flex justify-center items-center mb-5">

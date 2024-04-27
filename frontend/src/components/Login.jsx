@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FiLogIn } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import axiosInstance from "../axios";
 
 const Login = () => {
@@ -10,6 +13,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -19,6 +23,7 @@ const Login = () => {
 
   const onLogin = async (e) => {
     e.preventDefault();
+    setError("");
     if (email && password) {
       setLoading(true);
       await axiosInstance
@@ -29,18 +34,26 @@ const Login = () => {
         .then((response) => {
           console.log(response);
           localStorage.setItem("token", response.data.data.token);
-          setError("");
-          setLoading(false);
           setEmail("");
           setPassword("");
           navigate("/home/users");
         })
-        .catch((e) => {
-          console.log(e);
-          setError(e.response.data.error);
+        .catch((err) => {
+          console.log("Error logging in: ", err);
+          if (!err.response) setToastMessage(err.message);
+          else if (err.response.status < 500) setError(err.response.data.error);
+          else setToastMessage(err.response.data.error);
         });
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (toastMessage) {
+      toast.error(toastMessage, { autoClose: 3000 });
+      setToastMessage(false);
+    }
+  }, [toastMessage]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -49,6 +62,7 @@ const Login = () => {
 
   return (
     <div className="p-8 md:p-0 bg-[#beebd6] flex flex-col justify-center items-center md:bg-slate-200 min-h-screen">
+      <ToastContainer />
       <p className="md:hidden text-3xl font-bold my-8 text-teal-800 text-center">
         Artist Management System
       </p>

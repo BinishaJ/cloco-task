@@ -18,6 +18,7 @@ const UpdateUser = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -42,10 +43,11 @@ const UpdateUser = () => {
       })
       .catch((err) => {
         console.error("Error fetching user details:", err);
-        if (err.response) setError(err.response.data.error);
-        else setError(err);
-        setLoading(false);
+        if (!err.response) setToastMessage(err.message);
+        else if (err.response.status < 500) setError(err.response.data.error);
+        else setToastMessage(err.response.data.error);
       });
+    setLoading(false);
   }, [id]);
 
   const onSubmit = async (e) => {
@@ -78,9 +80,10 @@ const UpdateUser = () => {
           navigate("/home/users");
         }, 3000);
       })
-      .catch((e) => {
-        console.log(e);
-        setError(e.response.data.error);
+      .catch((err) => {
+        console.log("Error updating user: ", err);
+        if (err.response) setToastMessage(err.response.data.error);
+        else setToastMessage(err.message);
       });
     setLoading(false);
   };
@@ -91,6 +94,13 @@ const UpdateUser = () => {
       setSuccess(false);
     }
   }, [success]);
+
+  useEffect(() => {
+    if (toastMessage) {
+      toast.error(toastMessage, { autoClose: 3000 });
+      setToastMessage(false);
+    }
+  }, [toastMessage]);
 
   return (
     <div className="p-8 bg-[#e4e5e5] flex flex-col justify-center items-center min-h-full">
