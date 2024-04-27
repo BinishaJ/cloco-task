@@ -1,9 +1,8 @@
 import React from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 const Header = () => {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
   return (
     <header className="min-h-[80px] bg-[#5130b0] flex justify-end items-center px-6 py-1">
       <NavLink
@@ -22,15 +21,12 @@ const Header = () => {
       >
         Artists
       </NavLink>
-      <button
+      <NavLink
+        to="/logout"
         className="mr-8 text-[1.2rem] hover:text-[#9f84f8] font-semibold  text-white px-2 py-2"
-        onClick={() => {
-          localStorage.removeItem("token");
-          navigate("/");
-        }}
       >
         Logout
-      </button>
+      </NavLink>
     </header>
   );
 };

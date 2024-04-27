@@ -107,7 +107,7 @@ const userLogin = async (req, res) => {
 
     // return jwt token
     const token = jwt.sign({ email: email }, process.env.SECRET_KEY, {
-      expiresIn: "1d",
+      expiresIn: "1h",
     });
     res.json({ data: { token } });
   } catch (error) {
