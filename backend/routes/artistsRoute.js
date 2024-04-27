@@ -11,5 +11,6 @@ router
 router.route("/:id").patch(artistsController.updateArtist);
 router.route("/:id").delete(artistsController.deleteArtist);
 router.route("/:id/songs").get(artistsController.getSongs);
+router.route("/:id").get(artistsController.getArtist);
 
 module.exports = router;

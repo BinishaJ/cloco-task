@@ -107,6 +107,40 @@ const createArtist = async (req, res) => {
   }
 };
 
+// get artist details
+const getArtist = async (req, res) => {
+  const { id } = req.params;
+  const client = await pool.connect();
+
+  try {
+    // send artist details
+    const artist = await client.query(
+      `
+      SELECT name, dob, gender, address, first_release_year, no_of_albums_released
+      FROM artists
+      WHERE id = $1
+    `,
+      [id]
+    );
+
+    if (artist.rowCount === 0)
+      return res.status(404).json({ error: "Artist not found" });
+
+    return res.status(200).send({
+      data: { artist: artist.rows[0] },
+    });
+  } catch (err) {
+    console.log(err);
+
+    res
+      .status(500)
+      .json({ error: "An error occurred fetching artist details" });
+  } finally {
+    // release the connection pool
+    client.release();
+  }
+};
+
 const updateArtist = async (req, res) => {
   const client = await pool.connect();
   try {
@@ -248,6 +282,7 @@ const getSongs = async (req, res) => {
 module.exports = {
   getArtists,
   createArtist,
+  getArtist,
   updateArtist,
   deleteArtist,
   getSongs,
