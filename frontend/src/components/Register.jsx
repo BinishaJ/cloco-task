@@ -163,6 +163,9 @@ const Register = () => {
               className="bg-slate-200 focus:outline-none focus:border-transparent mb-4 px-5 py-3 rounded-3xl border-r-[20px]"
               onChange={onChange}
             >
+              <option value="" disabled>
+                Select
+              </option>
               <option value="m">Male</option>
               <option value="f">Female</option>
               <option value="o">Others</option>

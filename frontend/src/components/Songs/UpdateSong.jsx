@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { MdAdd } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import axiosInstance from "../../axios";
 
-const AddArtist = () => {
-  const [artistDetails, setArtistDetails] = useState({
-    name: "",
-    dob: "",
-    gender: "",
-    address: "",
-    first_release_year: "",
-    no_of_albums_released: "",
+const UpdateSong = () => {
+  const { id } = useParams();
+  const [songDetails, setSongDetails] = useState({
+    title: "",
+    album_name: "",
+    genre: "",
+    artist_id: id,
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -22,44 +20,38 @@ const AddArtist = () => {
   const navigate = useNavigate();
 
   const onChange = (e) => {
-    setArtistDetails({ ...artistDetails, [e.target.name]: e.target.value });
+    setSongDetails({ ...songDetails, [e.target.name]: e.target.value });
   };
+
+  useEffect(() => {
+    axiosInstance
+      .get(`/songs/${id}`)
+      .then((response) => {
+        const { data } = response.data;
+        console.log(data);
+        setSongDetails(data.song);
+      })
+      .catch((err) => {
+        console.error("Error fetching song details:", err);
+        if (err.response) setError(err.response.data.error);
+        else setError(err);
+        setLoading(false);
+      });
+  }, [id]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    console.log(artistDetails);
-
-    //  DOB
-    if (new Date(artistDetails.dob) > new Date()) {
-      setError("Invalid Date of Birth");
-      return;
-    }
-
-    // release year
-    if (
-      artistDetails.first_release_year > new Date().getFullYear() ||
-      artistDetails.first_release_year < 1900
-    ) {
-      setError("Invalid Release Year");
-      return;
-    }
-
-    // albums released
-    if (artistDetails.no_of_albums_released < 0) {
-      setError("Invalid Albums Released");
-      return;
-    }
+    console.log(songDetails);
 
     setLoading(true);
     await axiosInstance
-      .post("/artists", artistDetails)
+      .patch(`/songs/${id}`, songDetails)
       .then((response) => {
         console.log(response);
         setSuccess(true);
         setError("");
         setLoading(false);
-        setArtistDetails({
-          name: "",
+        setSongDetails({
           dob: "",
           gender: "",
           address: "",
@@ -67,19 +59,19 @@ const AddArtist = () => {
           no_of_albums_released: "",
         });
         setTimeout(() => {
-          navigate("/home/artists");
+          navigate(-1);
         }, 3000);
       })
       .catch((e) => {
         console.log(e);
         setError(e.response.data.error);
-        setLoading(false);
       });
+    setLoading(false);
   };
 
   useEffect(() => {
     if (success) {
-      toast.success("Artist created successfully", { autoClose: 2000 });
+      toast.success("Song updated successfully", { autoClose: 2000 });
       setSuccess(false);
     }
   }, [success]);
@@ -90,7 +82,7 @@ const AddArtist = () => {
       <div className="w-[90%] md:w-[60%] lg:w-[50%] xl:w-[40%] shadow-[0px_2px_10px_0_rgba(0,0,0,0.2)]">
         <div className="bg-slate-100 p-12">
           <span className="flex justify-center items-center mb-5">
-            <p className="text-[1.7rem] font-semibold ">Add Artist</p>
+            <p className="text-[1.7rem] font-semibold ">Edit Song</p>
           </span>
           <form
             className="flex flex-col h-fit justify-center rounded-md "
@@ -99,31 +91,31 @@ const AddArtist = () => {
             <label className="mb-2 text-md">Name</label>
             <input
               type="text"
-              name="name"
-              value={artistDetails.name}
+              name="title"
+              value={songDetails.title}
               required
               onChange={onChange}
               className="bg-slate-200 focus:outline-none focus:border-transparent mb-4 px-5 py-3 rounded-3xl"
-              placeholder="Name"
+              placeholder="Title"
             />
 
-            <label className="mb-2 text-md">Date of Birth</label>
+            <label className="mb-2 text-md">Album Name</label>
             <input
-              type="date"
-              name="dob"
-              value={artistDetails.dob}
+              type="text"
+              name="album_name"
+              value={songDetails.album_name}
               required
               onChange={onChange}
               className="bg-slate-200 focus:outline-none focus:border-transparent mb-4 px-5 py-3 rounded-3xl"
-              placeholder="Date of Birth"
+              placeholder="Album Name"
             />
 
-            <label htmlFor="gender" className="mb-2 text-md">
-              Gender
+            <label htmlFor="genre" className="mb-2 text-md">
+              Genre
             </label>
             <select
-              name="gender"
-              value={artistDetails.gender}
+              name="genre"
+              value={songDetails.genre}
               required
               className="bg-slate-200 focus:outline-none focus:border-transparent mb-4 px-5 py-3 rounded-3xl border-r-[20px]"
               onChange={onChange}
@@ -131,46 +123,12 @@ const AddArtist = () => {
               <option value="" disabled>
                 Select
               </option>
-              <option value="m">Male</option>
-              <option value="f">Female</option>
-              <option value="o">Others</option>
+              <option value="rnb">RnB</option>
+              <option value="country">Country</option>
+              <option value="classic">Classic</option>
+              <option value="rock">Rock</option>
+              <option value="jazz">Jazz</option>
             </select>
-
-            <label className="mb-2 text-md">Address</label>
-            <input
-              type="text"
-              name="address"
-              value={artistDetails.address}
-              required
-              onChange={onChange}
-              className="bg-slate-200 focus:outline-none focus:border-transparent mb-4 px-5 py-3 rounded-3xl"
-              placeholder="Address"
-            />
-
-            <label className="mb-2 text-md">First Release Year</label>
-            <input
-              type="number"
-              name="first_release_year"
-              value={artistDetails.first_release_year}
-              required
-              min="1980"
-              max={new Date().getFullYear()}
-              onChange={onChange}
-              className="bg-slate-200 focus:outline-none focus:border-transparent mb-4 px-5 py-3 rounded-3xl"
-              placeholder="First Release Year"
-            />
-
-            <label className="mb-2 text-md">Albums Released</label>
-            <input
-              type="number"
-              name="no_of_albums_released"
-              value={artistDetails.no_of_albums_released}
-              required
-              min="0"
-              onChange={onChange}
-              className="bg-slate-200 focus:outline-none focus:border-transparent mb-4 px-5 py-3 rounded-3xl"
-              placeholder="Albums Released"
-            />
 
             <div className="text-[0.9rem] text-red-600 text-right mb-4">
               {error}
@@ -180,7 +138,7 @@ const AddArtist = () => {
               <button
                 type="cancel"
                 disabled={loading}
-                onClick={() => navigate("/home/artists")}
+                onClick={() => navigate(-1)}
                 className="flex items-center justify-center bg-pink-600 text-white px-1 py-3 rounded-3xl mt-2 text-base hover:bg-pink-700 transition-colors duration-500 w-full md:w-24 mr-3"
               >
                 Cancel
@@ -190,8 +148,7 @@ const AddArtist = () => {
                 disabled={loading}
                 className="flex items-center justify-center bg-teal-600 text-white px-1 py-3 rounded-3xl mt-2 text-base hover:bg-teal-700 transition-colors duration-500 w-full md:w-24"
               >
-                <MdAdd className="mr-[0.1rem] text-xl font-semibold" />
-                Add
+                Save
               </button>
             </div>
           </form>
@@ -201,4 +158,4 @@ const AddArtist = () => {
   );
 };
 
-export default AddArtist;
+export default UpdateSong;

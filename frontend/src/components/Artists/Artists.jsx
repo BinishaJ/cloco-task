@@ -20,6 +20,7 @@ const Artist = () => {
       try {
         const response = await axiosInstance.get(`/artists?page=${page}`);
         const { data } = response.data;
+        console.log(data);
         setArtist(data.artists);
         setTotalArtists(data.total_artists);
         setTotalPages(Math.ceil(totalArtists / 10));
@@ -49,7 +50,7 @@ const Artist = () => {
     if (page > 1) setPage(page - 1);
   };
 
-  const onDeleteUser = async (id) => {
+  const onDeleteArtist = async (id) => {
     try {
       const response = await axiosInstance.delete(`/artists/${id}`);
       if (response) {
@@ -109,7 +110,7 @@ const Artist = () => {
                 </NavLink>
                 <MdDelete
                   className="text-red-600 hover:text-red-700 cursor-pointer"
-                  onClick={() => onDeleteUser(artist.id)}
+                  onClick={() => onDeleteArtist(artist.id)}
                 />
               </span>
             </div>

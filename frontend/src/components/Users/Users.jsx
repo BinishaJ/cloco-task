@@ -20,6 +20,7 @@ const Users = () => {
       try {
         const response = await axiosInstance.get(`/users?page=${page}`);
         const { data } = response.data;
+        console.log(data);
         setUsers(data.users);
         setTotalUsers(data.total_users);
         setTotalPages(Math.ceil(totalUsers / 10));
