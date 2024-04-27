@@ -44,12 +44,17 @@ const UpdateArtist = () => {
         });
       })
       .catch((err) => {
-        console.error("Error updating artist details:", err);
-        if (err.response) setError(err.response.data.error);
-        else setError(err);
-        setLoading(false);
+        console.error("Error getting artist details:", err);
+        if (!err.response) setToastMessage(err.message);
+        else if (err.response.status === 404) {
+          setToastMessage(err.response.data.error);
+          setTimeout(() => {
+            navigate("/home/artists");
+          }, 3000);
+        } else setToastMessage(err.response.data.error);
       });
-  }, [id]);
+    setLoading(false);
+  }, [id, navigate]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -97,7 +102,8 @@ const UpdateArtist = () => {
         }, 3000);
       })
       .catch((err) => {
-        console.log(err);
+        console.error("Error updating artist details:", err);
+
         if (!err.response) setToastMessage(err.message);
         else if (err.response.status < 500) setError(err.response.data.error);
         else setToastMessage(err.response.data.error);

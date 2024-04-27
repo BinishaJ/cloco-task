@@ -101,16 +101,33 @@ const Artist = () => {
               <p>First Release Year: {artist.first_release_year}</p>
               <p>Albums Released: {artist.no_of_albums_released}</p>
               <span className="flex justify-end mt-2 text-2xl ">
-                <NavLink to={`/home/artists/${artist.id}/songs`}>
+                <NavLink
+                  to={`/home/artists/${artist.id}/songs`}
+                  className="relative inline-block group"
+                >
                   <MdMusicNote className="text-yellow-500 hover:text-yellow-600 cursor-pointer mr-2" />
+                  <span className="hidden group-hover:inline-block bg-black text-white text-xs px-2 py-1 rounded absolute -bottom-[1/2] left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                    Songs
+                  </span>
                 </NavLink>
-                <NavLink to={`/home/artists/${artist.id}`}>
+                <NavLink
+                  to={`/home/artists/${artist.id}`}
+                  className="relative inline-block group"
+                >
                   <MdEdit className="text-blue-600 hover:text-blue-800 cursor-pointer mr-2" />
+                  <span className="hidden group-hover:inline-block bg-black text-white text-xs px-2 py-1 rounded absolute -bottom-[1/2] left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                    Edit
+                  </span>
                 </NavLink>
-                <MdDelete
-                  className="text-red-600 hover:text-red-700 cursor-pointer"
-                  onClick={() => onDeleteArtist(artist.id)}
-                />
+                <div className="relative inline-block group">
+                  <MdDelete
+                    className="text-red-600 hover:text-red-700 cursor-pointer"
+                    onClick={() => onDeleteArtist(artist.id)}
+                  />
+                  <span className="hidden group-hover:inline-block bg-black text-white text-xs px-2 py-1 rounded absolute -bottom-[1/2] left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                    Delete
+                  </span>
+                </div>
               </span>
             </div>
           ))}

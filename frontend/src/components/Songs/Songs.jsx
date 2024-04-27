@@ -80,13 +80,24 @@ const Songs = () => {
                 <p>Album Name: {song.album_name}</p>
                 <p className="capitalize">Genre: {song.genre}</p>
                 <span className="flex justify-end mt-2 text-2xl ">
-                  <NavLink to={`/home/songs/${song.id}`}>
+                  <NavLink
+                    to={`/home/songs/${song.id}`}
+                    className="relative inline-block group"
+                  >
                     <MdEdit className="text-blue-600 hover:text-blue-800 cursor-pointer mr-2" />
+                    <span className="hidden group-hover:inline-block bg-black text-white text-xs px-2 py-1 rounded absolute -bottom-[1/2] left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                      Edit
+                    </span>
                   </NavLink>
-                  <MdDelete
-                    className="text-red-600 hover:text-red-700 cursor-pointer"
-                    onClick={() => onDeleteSong(song.id)}
-                  />
+                  <div className="relative inline-block group">
+                    <MdDelete
+                      className="text-red-600 hover:text-red-700 cursor-pointer"
+                      onClick={() => onDeleteSong(song.id)}
+                    />
+                    <span className="hidden group-hover:inline-block bg-black text-white text-xs px-2 py-1 rounded absolute -bottom-[1/2] left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                      Delete
+                    </span>
+                  </div>
                 </span>
               </div>
             ))}

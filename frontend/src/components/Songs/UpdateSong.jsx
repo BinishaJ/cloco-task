@@ -34,11 +34,16 @@ const UpdateSong = () => {
       })
       .catch((err) => {
         console.error("Error fetching song details:", err);
-        if (err.response) setError(err.response.data.error);
-        else setError(err);
+        if (!err.response) setToastMessage(err.message);
+        else if (err.response.status === 404) {
+          setToastMessage(err.response.data.error);
+          setTimeout(() => {
+            navigate("/home/artists");
+          }, 3000);
+        } else setToastMessage(err.response.data.error);
       });
     setLoading(false);
-  }, [id]);
+  }, [id, navigate]);
 
   const onSubmit = async (e) => {
     e.preventDefault();

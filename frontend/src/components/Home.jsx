@@ -4,6 +4,7 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import AddArtist from "./Artists/AddArtist";
 import Artists from "./Artists/Artists";
 import UpdateArtist from "./Artists/UpdateArtist";
+import Error from "./Error";
 import Header from "./Header";
 import AddSong from "./Songs/AddSong";
 import Songs from "./Songs/Songs";
@@ -38,6 +39,7 @@ const Home = () => {
             <Route path=":id/songs/add" element={<AddSong />} />
           </Route>
           <Route path="/songs/:id" element={<UpdateSong />} />
+          <Route path="*" element={<Error />} />
         </Routes>
       </div>
     </div>

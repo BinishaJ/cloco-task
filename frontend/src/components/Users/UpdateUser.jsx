@@ -44,11 +44,15 @@ const UpdateUser = () => {
       .catch((err) => {
         console.error("Error fetching user details:", err);
         if (!err.response) setToastMessage(err.message);
-        else if (err.response.status < 500) setError(err.response.data.error);
-        else setToastMessage(err.response.data.error);
+        else if (err.response.status === 404) {
+          setToastMessage(err.response.data.error);
+          setTimeout(() => {
+            navigate("/home/users");
+          }, 3000);
+        } else setToastMessage(err.response.data.error);
       });
     setLoading(false);
-  }, [id]);
+  }, [id, navigate]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -82,8 +86,10 @@ const UpdateUser = () => {
       })
       .catch((err) => {
         console.log("Error updating user: ", err);
-        if (err.response) setToastMessage(err.response.data.error);
-        else setToastMessage(err.message);
+
+        if (!err.response) setToastMessage(err.message);
+        else if (err.response.status < 500) setError(err.response.data.error);
+        else setToastMessage(err.response.data.error);
       });
     setLoading(false);
   };
